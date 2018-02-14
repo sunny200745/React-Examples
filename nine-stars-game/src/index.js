@@ -6,16 +6,10 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 
 const Stars = (props) =>{
-  const numberOfStars = 1+Math.floor(Math.random()*9);
-  // let stars = [];
-  // for(let i=0; i<numberOfStars;i++) {
-  //   stars.push()
-  // }
-
-
+  
 	return(
   	<div className="col-5">
-  	  {_.range(numberOfStars).map(i => 
+  	  {_.range(props.numberOfStars).map(i => 
           <i key={i} className="fa fa-star"></i>
         )}
   	</div>
@@ -25,7 +19,7 @@ const Stars = (props) =>{
 const Button = (props) =>{
 	return(
   	<div className="col-2">
-  	  <button>=</button>
+  	  <button className="btn btn-info" disabled={props.selectedNumbers.length === 0}>=</button>
   	</div>
   );
 };
@@ -33,10 +27,9 @@ const Button = (props) =>{
 const Answer = (props) =>{
 	return(
   	<div className="col-5">
-  	  
       {
         props.selectedNumbers.map((val,i) => 
-        <span key={i}>{val}</span>
+        <span key={i} onClick={()=>props.unselectedNumber(val)}>{val}</span>
         )
       }
   	</div>
@@ -54,7 +47,10 @@ const Numbers = (props) =>{
   	<div className="card text-center">
   	  <div>
         { Numbers.list.map((number,i)=>
-            <span key={i} className={computeClass(number)}>{number}</span>
+
+            <span key={i} className={computeClass(number)} onClick={()=>props.selectParticularNumber(number)}>
+              {number}
+            </span>
         )}
         
   	  </div>
@@ -65,20 +61,33 @@ const Numbers = (props) =>{
 Numbers.list = _.range(1,10);
 class Game extends React.Component{
   state = {
-    selectedNumbers : [2,5]
-  }
+    selectedNumbers : [],
+    numberOfStars : 1+Math.floor(Math.random()*9)
+  };
+  
+  selectParticularNumber = (clickedNum) => {
+    if(this.state.selectedNumbers.indexOf(clickedNum)>= 0){return;}
+    this.setState(prevState => ({
+      selectedNumbers : prevState.selectedNumbers.concat(clickedNum)
+    }))
+  };
+  unselectedNumber = (clickedNum) => {
+    this.setState(prevState => ({
+      selectedNumbers : prevState.selectedNumbers.filter(num => num !== clickedNum)
+    }))
+  };
 	render(){
   	return(
     	<div className="container">
     	  <h3>Play Nine Game</h3>
         <hr/>
         <div className="row">
-          <Stars />
-          <Button />
-          <Answer selectedNumbers={this.state.selectedNumbers}/>
+          <Stars numberOfStars={this.state.numberOfStars}/>
+          <Button selectedNumbers={this.state.selectedNumbers}/>
+          <Answer selectedNumbers={this.state.selectedNumbers} unselectedNumber={this.unselectedNumber}/>
         </div>
         <br/>
-        <Numbers selectedNumbers={this.state.selectedNumbers}/>
+        <Numbers selectedNumbers={this.state.selectedNumbers} selectParticularNumber={this.selectParticularNumber}/>
     	</div>
     );
   }
